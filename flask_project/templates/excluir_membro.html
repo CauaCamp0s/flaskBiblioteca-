@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1 class="mt-3">Excluir Membro</h1>
+  <p>Tem certeza que deseja excluir o membro "{{ membro.nome }}"?</p>
+  <form action="{{ url_for('excluir_membro', membro_id=membro.id) }}" method="post">
+    <button type="submit" class="btn btn-danger">Excluir</button>
+    <a href="{{ url_for('listar_membros') }}" class="btn btn-secondary">Cancelar</a>
+  </form>
+{% endblock %}

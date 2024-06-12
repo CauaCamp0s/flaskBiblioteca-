@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1 class="mt-3">Editar Empréstimo</h1>
+  <form action="{{ url_for('editar_emprestimo', emprestimo_id=emprestimo.id) }}" method="post">
+    <div class="form-group">
+      <label for="livro_id">Livro</label>
+      <select class="form-control" id="livro_id" name="livro_id">
+        {% for livro in livros %}
+          <option value="{{ livro.id }}" {% if livro.id == emprestimo.livro_id %}selected{% endif %}>{{ livro.titulo }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="membro_id">Membro</label>
+      <select class="form-control" id="membro_id" name="membro_id">
+        {% for membro in membros %}
+          <option value="{{ membro.id }}" {% if membro.id == emprestimo.membro_id %}selected{% endif %}>{{ membro.nome }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="data_emprestimo">Data de Empréstimo</label>
+      <input type="date" class="form-control" id="data_emprestimo" name="data_emprestimo" value="{{ emprestimo.data_emprestimo }}" required>
+    </div>
+    <div class="form-group">
+      <label for="data_devolucao">Data de Devolução</label>
+      <input type="date" class="form-control" id="data_devolucao" name="data_devolucao" value="{{ emprestimo.data_devolucao }}">
+    </div>
+    <button type="submit" class="btn btn-primary">Atualizar Empréstimo</button>
+  </form>
+{% endblock %}
