@@ -16,10 +16,16 @@ def init_routes(app):
     def index():
         return render_template('index.html')
 
+
 @app.route('/livros')
-def livros():
-    livros = Livro.query.all()
+def listar_livros():
+    search = request.args.get('search')
+    if search:
+        livros = Livro.query.filter(Livro.titulo.ilike(f'%{search}%')).all()
+    else:
+        livros = Livro.query.all()
     return render_template('livros.html', livros=livros)
+
 
 @app.route('/livro/excluir/<int:livro_id>', methods=['POST'])
 def excluir_livro(livro_id):
@@ -206,9 +212,19 @@ def editar_emprestimo(emprestimo_id):
 @app.route('/emprestimos/excluir/<int:emprestimo_id>', methods=['POST'])
 def excluir_emprestimo(emprestimo_id):
     emprestimo = Emprestimo.query.get_or_404(emprestimo_id)
-    db.session.delete(emprestimo)
-    db.session.commit()
+    livro = Livro.query.get(emprestimo.livro_id)
+
+    try:
+        db.session.delete(emprestimo)
+        livro.disponivel = True  # Tornar o livro disponível novamente
+        db.session.commit()
+        flash('Empréstimo excluído com sucesso e livro agora está disponível.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Ocorreu um erro ao excluir o empréstimo: {e}', 'danger')
+
     return redirect(url_for('emprestimos'))
+
 
 @app.route('/emprestimos/atualizar/<int:emprestimo_id>', methods=['GET', 'POST'])
 def atualizar_emprestimo_route(emprestimo_id):  # Renomeando a função para evitar conflito
@@ -227,6 +243,8 @@ def atualizar_emprestimo_route(emprestimo_id):  # Renomeando a função para evi
         return redirect(url_for('emprestimos'))
 
     return render_template('atualizar_emprestimo.html', form=form, emprestimo=emprestimo)
+
+# sgb/routes.py
 
 @app.route('/emprestimos/adicionar', methods=['GET', 'POST'])
 def adicionar_emprestimo():
@@ -250,6 +268,7 @@ def adicionar_emprestimo():
         return redirect(url_for('emprestimos'))
     
     return render_template('adicionar_emprestimo.html', form=form)
+
 
 @app.route('/emprestimos/criar', methods=['POST'])
 def criar_emprestimo():
@@ -277,10 +296,20 @@ def atualizar_emprestimo_put(id):
     db.session.commit()
     return jsonify({'message': 'Empréstimo atualizado com sucesso!'}), 200
 
+
 @app.route('/membros')
 def listar_membros():
-    membros = Membro.query.all()
-    return render_template('membros.html', membros=membros)
+    search = request.args.get('search')
+    if search:
+        membros = Membro.query.filter(Membro.nome.ilike(f'%{search}%')).all()
+        nenhum_membro_encontrado = not membros  # Verifica se nenhum membro foi encontrado
+    else:
+        membros = Membro.query.all()
+        nenhum_membro_encontrado = False  # Defina como False se nenhum termo de pesquisa foi fornecido
+
+    return render_template('membros.html', membros=membros, nenhum_membro_encontrado=nenhum_membro_encontrado)
+
+
 
 @app.route('/adicionar_membro', methods=['GET', 'POST'])
 def adicionar_membro_form():

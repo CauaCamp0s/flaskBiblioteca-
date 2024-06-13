@@ -1,5 +1,6 @@
+from datetime import datetime
 from app import db
-from sqlalchemy import Column, Integer, ForeignKey, Text, Boolean, String, Date
+from sqlalchemy import Column, Integer, ForeignKey, Text, Boolean, String, Date, DateTime
 from sqlalchemy.orm import relationship
 
 class Autor(db.Model):
@@ -13,8 +14,10 @@ class Livro(db.Model):
     autor_id = db.Column(db.Integer, db.ForeignKey('autor.id'), nullable=False)
     ano_publicacao = db.Column(db.Integer)
     genero_id = db.Column(db.Integer, db.ForeignKey('genero.id'))
-    disponivel = db.Column(db.Integer, default=1)
+    disponivel = db.Column(db.Boolean, default=True)
     url_da_capa = db.Column(db.String(255))
+    autor = db.relationship('Autor', backref=db.backref('livros', lazy=True))
+    genero = db.relationship('Genero', backref=db.backref('livros', lazy=True))
 
 class Genero(db.Model):
     __tablename__ = 'genero'
@@ -30,16 +33,11 @@ class Membro(db.Model):
     email = db.Column(db.String(100))
     telefone = db.Column(db.String(15))
 
-    
 class Emprestimo(db.Model):
-    __tablename__ = 'emprestimo'
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    livro_id = Column(Integer, ForeignKey('livro.id'), nullable=False)
-    membro_id = Column(Integer, ForeignKey('membro.id'), nullable=False)
-    data_emprestimo = Column(Date, nullable=False)
-    data_devolucao = Column(Date, nullable=False)
-
-    livro = relationship("Livro")
-    membro = relationship("Membro")
-
+    id = db.Column(db.Integer, primary_key=True)
+    livro_id = db.Column(db.Integer, db.ForeignKey('livro.id'), nullable=False)
+    membro_id = db.Column(db.Integer, db.ForeignKey('membro.id'), nullable=False)
+    data_emprestimo = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    data_devolucao = db.Column(db.DateTime, nullable=True)
+    livro = db.relationship('Livro', backref=db.backref('emprestimos', lazy=True))
+    membro = db.relationship('Membro', backref=db.backref('emprestimos', lazy=True))

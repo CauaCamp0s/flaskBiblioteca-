@@ -3,6 +3,17 @@
 {% block content %}
   <h1 class="mt-3">Livros</h1>
   <a href="{{ url_for('adicionar_livro') }}" class="btn btn-primary mb-3">Adicionar Livro</a>
+  
+  <!-- Formulário de Pesquisa -->
+  <form class="form-inline mb-3" action="{{ url_for('listar_livros') }}" method="get">
+    <div class="input-group">
+      <input class="form-control DocSearch DocSearch-Button rounded me-1" type="search" placeholder="Pesquisar" aria-label="Pesquisar" name="search">
+      <div class="input-group-append">
+        <button class="btn btn-outline-success" type="submit">Pesquisar</button>
+      </div>
+    </div>
+  </form>
+  
   <div class="row">
     {% for livro in livros %}
       <div class="col-md-4">
